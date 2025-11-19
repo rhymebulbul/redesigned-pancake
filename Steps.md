@@ -1,17 +1,19 @@
-```markdown
-# DeepSeek-Coder-7B-Instruct Setup on Kubuntu (Any Laptop)
+Here’s your **updated and corrected setup guide** reflecting the latest steps you’ve taken on Kubuntu/Linux, including using `ollama serve` style GPU-backed local LLM hosting. I’ve kept it clean and step-by-step:
 
-This guide will help you run the **DeepSeek-Coder-7B-Instruct v1.5** model locally using `text-generation-webui`, accessible from other devices on your local Wi-Fi.
+```markdown
+# DeepSeek-Coder-7B-Instruct Setup on Kubuntu/Linux (Any Laptop)
+
+This guide helps you run **DeepSeek-Coder-7B-Instruct v1.5** locally using `text-generation-webui`, accessible from other devices on your local Wi-Fi. GPU support is optional but recommended.
 
 ---
 
 ## 1️⃣ Prerequisites
 
-- Ubuntu / Kubuntu laptop
-- Python 3.12+ installed
+- Kubuntu / Ubuntu laptop
+- Python 3.12+
 - Git installed
-- Basic terminal familiarity
-- Your DeepSeek-Coder-7B-Instruct model folder in **safetensors format**:
+- Terminal familiarity
+- Model in **safetensors format**:
 
 ```
 
@@ -32,9 +34,11 @@ tokenizer.json
 
 ````
 
+- NVIDIA GPU recommended for faster inference (CUDA 13.0+ supported in your setup)
+
 ---
 
-## 2️⃣ Clone the Text Generation WebUI
+## 2️⃣ Clone Text Generation WebUI
 
 ```bash
 git clone https://github.com/oobabooga/text-generation-webui
@@ -50,29 +54,25 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-> After this, your prompt should show `(venv)`.
+> Your prompt should now show `(venv)`.
 
 ---
 
-## 4️⃣ Install Python dependencies
-
-Install **full dependencies** (recommended for CPU/GPU usage):
+## 4️⃣ Install dependencies
 
 ```bash
 pip install -r requirements/full
 ```
 
-Verify key packages:
+Verify:
 
 ```bash
-python -c "import yaml; import torch; import transformers; print('All dependencies installed successfully')"
+python -c "import torch; import transformers; import yaml; print('Dependencies OK')"
 ```
 
 ---
 
-## 5️⃣ Place your DeepSeek model
-
-Copy or move your model folder into the `text-generation-webui/models` directory:
+## 5️⃣ Place your model in the WebUI directory
 
 ```bash
 mkdir -p models
@@ -81,27 +81,56 @@ cp -r ~/models/deepseek-coder-7b-instruct-v1.5 models/
 
 ---
 
-## 6️⃣ Start the server (accessible over local network)
+## 6️⃣ Start the server
 
 ```bash
-python server.py --model models/deepseek-coder-7b-instruct-v1.5 --listen --host 0.0.0.0 --port 5000
+python server.py \
+  --model models/deepseek-coder-7b-instruct-v1.5 \
+  --listen --host 0.0.0.0 --port 5000
 ```
 
-* `--listen` allows external connections
-* `--host 0.0.0.0` binds to all interfaces
-* `--port 5000` (can change if needed)
+* `--listen` → allows connections from other devices
+* `--host 0.0.0.0` → binds to all interfaces
+* `--port 5000` → can be changed
 
-> Your laptop’s local IP (e.g., `192.168.1.42`) + port 5000 will be used by other devices:
+> On another device in the same Wi-Fi:
 
 ```
-http://192.168.1.42:5000
+http://<YOUR_LAPTOP_IP>:5000
 ```
 
 ---
 
-## 7️⃣ Test the model
+## 7️⃣ Alternative: Using Ollama-style GPU server (Linux)
 
-From another device on the same Wi-Fi:
+If using **Ollama LLM server**:
+
+```bash
+# Start the server
+ollama serve
+```
+
+* Logs will show GPU detected and server listening on `0.0.0.0:11434`.
+* Test connectivity:
+
+```bash
+curl http://localhost:11434
+```
+
+* Stop the service if needed:
+
+```bash
+sudo systemctl stop ollama
+sudo systemctl daemon-reload
+```
+
+> Ollama automatically detects GPUs and can handle VRAM-limited environments.
+
+---
+
+## 8️⃣ Test the model
+
+From another device:
 
 ```bash
 curl http://<YOUR_LAPTOP_IP>:5000/generate \
@@ -110,9 +139,9 @@ curl http://<YOUR_LAPTOP_IP>:5000/generate \
 
 ---
 
-## 8️⃣ Optional: Connect Aider for Claude Code–style workflow
+## 9️⃣ Optional: Connect Aider for Claude Code–style workflow
 
-1. Install Aider:
+1. Install:
 
 ```bash
 pip install aider-chat
@@ -126,15 +155,16 @@ aider init
 aider --model http://<YOUR_LAPTOP_IP>:5000
 ```
 
-* Now you can **edit, refactor, and generate code interactively** from the terminal.
+* Now you can **edit, refactor, and generate code interactively**.
 
 ---
 
-## 9️⃣ Tips
+## 🔟 Tips
 
-* Ensure your firewall allows **port 5000**.
-* For GPU usage, install the appropriate CUDA version if using PyTorch GPU builds.
-* For headless laptops, consider using **`screen`** or **`tmux`** to keep the server running.
+* Ensure **firewall allows port 5000** (or your chosen port)
+* For GPU usage, install matching CUDA version
+* For headless setups, use **`screen`** or **`tmux`**
+* Ollama automatically restarts on crash (Linux: system service, Mac: toolbar app)
 
 ---
 
@@ -144,6 +174,11 @@ aider --model http://<YOUR_LAPTOP_IP>:5000
 * [DeepSeek-Coder-7B on Hugging Face](https://huggingface.co/deepseek-ai/deepseek-coder-7b-instruct-v1.5)
 * [Aider Chat](https://github.com/YourCode-AI/aider)
 
+```
 
+---
 
+✅ This now reflects **both the standard WebUI setup and the Ollama GPU-backed server approach**, with proper Linux instructions for starting/stopping and testing the server.  
+
+If you want, I can **merge Ollama into the WebUI workflow**, so it automatically uses GPU and listens for external connections without running `python server.py` manually. This is ideal for laptops with limited VRAM. Do you want me to do that?
 ```
